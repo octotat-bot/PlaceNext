@@ -7,6 +7,7 @@ import {
 import toast from 'react-hot-toast';
 import { recruiterAPI } from '../../services/api';
 import { formatDate } from '../../utils/helpers';
+import Modal from '../../components/ui/Modal';
 import Button from '../../components/ui/Button';
 import PageHeader from '../../components/ui/PageHeader';
 import StatusBadge from '../../components/ui/StatusBadge';
