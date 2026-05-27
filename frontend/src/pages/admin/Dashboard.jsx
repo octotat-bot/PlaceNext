@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import {
   Users, Briefcase, Building2, DollarSign, CheckCircle,
   TrendingUp, FileText, PieChart as PieChartIcon, UserCheck,
-  ChevronRight, Download,
+  ChevronRight, Download, AlertTriangle,
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, AreaChart, Area,
@@ -31,6 +32,7 @@ const chartTooltipStyle = {
 };
 
 const AdminDashboard = () => {
+  const { user } = useAuth();
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pendingRecruiters, setPendingRecruiters] = useState([]);
@@ -106,6 +108,27 @@ const AdminDashboard = () => {
           </button>
         }
       />
+
+      {/* Default Password Warning */}
+      {user?.email === 'admin@placement.com' && (
+        <div data-tour="password-warning" style={{
+          display: 'flex', alignItems: 'flex-start', gap: 12,
+          padding: '12px 16px', marginBottom: 20,
+          background: 'var(--color-background-danger)',
+          border: '0.5px solid var(--color-text-danger)',
+          borderRadius: 'var(--border-radius-md)',
+        }}>
+          <AlertTriangle size={15} style={{ color: 'var(--color-text-danger)', flexShrink: 0, marginTop: 2 }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>
+              Security Warning: Default Credentials in Use
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 4 }}>
+              You are logged in using the default hardcoded admin account. Please consider changing your password from your profile settings to secure the portal.
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Pending Recruiters Alert */}
       {pendingRecruiters.length > 0 ? (
