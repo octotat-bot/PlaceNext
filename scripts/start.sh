@@ -8,17 +8,17 @@ echo "Starting PlaceNext..."
 # Start backend
 echo "Starting backend..."
 cd backend
-npm run dev > ../backend.log 2>&1 &
+npm run dev &
 BACKEND_PID=$!
-echo "Backend started with PID $BACKEND_PID (logs in backend.log)"
+echo "Backend started with PID $BACKEND_PID"
 cd ..
 
 # Start frontend
 echo "Starting frontend..."
 cd frontend
-npm run dev > ../frontend.log 2>&1 &
+npm run dev &
 FRONTEND_PID=$!
-echo "Frontend started with PID $FRONTEND_PID (logs in frontend.log)"
+echo "Frontend started with PID $FRONTEND_PID"
 cd ..
 
 # Save PIDs to a file so they can be stopped later

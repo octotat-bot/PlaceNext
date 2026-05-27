@@ -241,11 +241,17 @@ const OnboardingWizard = () => {
             styles={{
                 options: {
                     arrowColor: '#1a1a1a',
-                    overlayColor: 'rgba(0, 0, 0, 0.75)',
+                    overlayColor: 'rgba(0, 0, 0, 0.8)',
                     zIndex: 10000,
                 },
+                spotlight: {
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    border: '1.5px solid rgba(250, 204, 21, 0.8)',
+                    borderRadius: '12px',
+                    boxShadow: '0 0 30px rgba(250, 204, 21, 0.25)',
+                },
                 beacon: {
-                    display: 'none', // Alternatively, you can style the beacon too
+                    display: 'none',
                 }
             }}
         />
