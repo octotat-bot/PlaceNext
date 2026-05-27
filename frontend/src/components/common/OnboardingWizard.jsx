@@ -22,94 +22,7 @@ const T = {
     fontMono: "'JetBrains Mono', 'Fira Code', monospace",
 };
 
-const PAD = 14; // padding around the spotlight cutout
 
-/* ─────────────────────────────────────────────────────────
-   Spotlight — rendered via portal to body
-   Dims the whole page and punches a cutout at the target.
-   ───────────────────────────────────────────────────────── */
-const Spotlight = ({ target }) => {
-    const [box, setBox]     = useState(null);
-    const attemptRef        = useRef(0);
-    const cancelledRef      = useRef(false);
-
-    useEffect(() => {
-        cancelledRef.current = false;
-        attemptRef.current   = 0;
-        setBox(null);
-
-        if (!target || target === 'body') return;
-
-        const measure = () => {
-            if (cancelledRef.current) return;
-            const el = document.querySelector(target);
-            if (!el) {
-                if (attemptRef.current++ < 10) setTimeout(measure, 80);
-                return;
-            }
-            const r = el.getBoundingClientRect();
-            if (r.width === 0 && r.height === 0) {
-                if (attemptRef.current++ < 10) setTimeout(measure, 80);
-                return;
-            }
-            setBox({
-                top:  r.top  - PAD,
-                left: r.left - PAD,
-                w:    r.width  + PAD * 2,
-                h:    r.height + PAD * 2,
-            });
-        };
-
-        const t = setTimeout(measure, 120);
-        const onResize = () => measure();
-        window.addEventListener('resize', onResize);
-        window.addEventListener('scroll', onResize, true);
-
-        return () => {
-            cancelledRef.current = true;
-            clearTimeout(t);
-            setBox(null);
-            window.removeEventListener('resize', onResize);
-            window.removeEventListener('scroll', onResize, true);
-        };
-    }, [target]);
-
-    /* Welcome / body step — full dark overlay, no cutout */
-    if (!target || target === 'body') {
-        return createPortal(
-            <div style={{
-                position: 'fixed', inset: 0,
-                background: 'rgba(0,0,0,0.82)',
-                pointerEvents: 'none',
-                zIndex: 9998,
-            }} />,
-            document.body
-        );
-    }
-
-    /* Still measuring — don't flash a black screen */
-    if (!box) return null;
-
-    return createPortal(
-        <div style={{
-            position: 'fixed',
-            top:    box.top,
-            left:   box.left,
-            width:  box.w,
-            height: box.h,
-            pointerEvents: 'none',
-            zIndex: 9998,
-            /* Punch a cutout in the overlay via outward box-shadow */
-            boxShadow: '0 0 0 9999px rgba(0,0,0,0.82)',
-            /* Gold frame — the main visible boundary */
-            border: `2px solid ${T.gold}`,
-            /* Outer soft glow ring for depth */
-            outline: `4px solid ${T.goldDim}`,
-            outlineOffset: '4px',
-        }} />,
-        document.body
-    );
-};
 
 /* ─────────────────────────────────────────────────────────
    Tooltip
@@ -277,8 +190,6 @@ const OnboardingWizard = () => {
         },
     ];
 
-    const currentTarget = run ? (steps[stepIndex]?.target ?? null) : null;
-
     const handleCallback = async ({ status, index, type }) => {
         if (type === EVENTS.STEP_BEFORE) {
             setStepIndex(index);
@@ -299,33 +210,34 @@ const OnboardingWizard = () => {
     if (!user || user.role !== 'student' || user.hasCompletedOnboarding) return null;
 
     return (
-        <>
-            {run && <Spotlight target={currentTarget} />}
-
-            <Joyride
-                callback={handleCallback}
-                continuous
-                hideCloseButton
-                run={run}
-                scrollToFirstStep
-                showSkipButton
-                disableOverlayClose
-                spotlightPadding={0}
-                steps={steps}
-                tooltipComponent={Tooltip}
-                styles={{
-                    options: {
-                        /* Our Spotlight handles dimming — Joyride overlay is transparent */
-                        overlayColor: 'transparent',
-                        zIndex: 10000,
-                        arrowColor: T.bg,
-                    },
-                    spotlight: { display: 'none' },
-                    overlay:   { backgroundColor: 'transparent', cursor: 'default' },
-                    beacon:    { display: 'none' },
-                }}
-            />
-        </>
+        <Joyride
+            callback={handleCallback}
+            continuous
+            hideCloseButton
+            run={run}
+            scrollToFirstStep
+            showSkipButton
+            disableOverlayClose
+            spotlightPadding={12}
+            steps={steps}
+            tooltipComponent={Tooltip}
+            styles={{
+                options: {
+                    overlayColor: 'rgba(0, 0, 0, 0.88)', // Deep dark overlay
+                    zIndex: 100000,
+                    arrowColor: T.bg,
+                },
+                spotlight: {
+                    borderRadius: 0,
+                    border: '2px solid rgba(255, 255, 255, 0.85)', // White border
+                    outline: '4px solid rgba(255, 255, 255, 0.15)', // Soft outer ring
+                    outlineOffset: '4px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.04)', // Slight inner brightness
+                    boxShadow: '0 0 20px rgba(255, 255, 255, 0.2)', // Glow
+                },
+                beacon: { display: 'none' },
+            }}
+        />
     );
 };
 
