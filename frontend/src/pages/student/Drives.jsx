@@ -6,6 +6,7 @@ import DriveCard from '../../components/student/DriveCard';
 import Modal from '../../components/ui/Modal';
 import Button from '../../components/ui/Button';
 import PageHeader from '../../components/ui/PageHeader';
+import EmptyState from '../../components/ui/EmptyState';
 import { DriveCardSkeleton } from '../../components/ui/Skeleton';
 import { formatDate, formatPackage, getDaysRemaining } from '../../utils/helpers';
 import toast from 'react-hot-toast';
@@ -108,13 +109,12 @@ const Drives = () => {
           {Array(4).fill(0).map((_, i) => <DriveCardSkeleton key={i} />)}
         </div>
       ) : filteredDrives.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '48px 20px', background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 'var(--border-radius-lg)' }}>
-          <Briefcase size={28} style={{ color: 'var(--color-text-tertiary)', margin: '0 auto 10px', display: 'block', opacity: 0.4 }} />
-          <div style={{ fontSize: 14, color: 'var(--color-text-secondary)', fontWeight: 500 }}>No drives found</div>
-          <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 4 }}>
-            {drives.length === 0 ? 'No drives are available right now' : 'Try adjusting your search or filters'}
-          </div>
-        </div>
+        <EmptyState 
+          icon="ti-briefcase" 
+          title="No eligible drives right now" 
+          body="Check back soon — new drives are added regularly. Make sure your profile is complete to match more drives."
+          cta={{ label: 'Complete profile', href: '/profile' }}
+        />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {filteredDrives.map(drive => (

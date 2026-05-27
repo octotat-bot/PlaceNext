@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
@@ -10,7 +10,10 @@ import { PageLoader } from './components/ui/Loading';
 import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AuthLayout from './components/auth/AuthLayout';
-import OnboardingWizard from './components/common/OnboardingWizard';
+import WelcomeSplash from './components/onboarding/WelcomeSplash';
+import ProfileNudge from './components/onboarding/ProfileNudge';
+import ProductTour from './components/onboarding/ProductTour';
+import { useAuth } from './context/AuthContext';
 
 // Lazy loaded auth pages
 const Login = lazy(() => import('./components/auth/Login'));
@@ -40,6 +43,30 @@ const RecruiterApplications = lazy(() => import('./pages/recruiter/Applications'
 const RecruiterInterviews = lazy(() => import('./pages/recruiter/Interviews'));
 const RecruiterSettings = lazy(() => import('./pages/recruiter/Settings'));
 
+function AppShell({ children }) {
+  const { user, profile } = useAuth();
+  const [splashDone, setSplashDone] = useState(false);
+
+  const splashKey = user ? `onboarding_splash_${user._id}` : null;
+  const showSplash = splashKey && !localStorage.getItem(splashKey) && !splashDone;
+
+  return (
+    <>
+      {showSplash && (
+        <WelcomeSplash onComplete={() => setSplashDone(true)} />
+      )}
+
+      {!showSplash && user?.role === 'student' && profile && (
+        <ProfileNudge completeness={profile.profileCompleteness || 0} />
+      )}
+
+      {children}
+
+      {!showSplash && <ProductTour />}
+    </>
+  );
+}
+
 function App() {
   return (
     <ErrorBoundary>
@@ -47,7 +74,8 @@ function App() {
         <AuthProvider>
           <Router>
             <Suspense fallback={<PageLoader message="Loading..." />}>
-              <Routes>
+              <AppShell>
+                <Routes>
                 {/* Public Routes with Animation */}
                 <Route element={<AuthLayout />}>
                   <Route path="/login" element={<Login />} />
@@ -98,12 +126,10 @@ function App() {
                 {/* Default redirect */}
                 <Route path="/" element={<Navigate to="/login" replace />} />
                 <Route path="*" element={<Navigate to="/login" replace />} />
-              </Routes>
+                </Routes>
+              </AppShell>
             </Suspense>
           </Router>
-
-          {/* Global Components */}
-          <OnboardingWizard />
           
           {/* Toast Notifications */}
           <Toaster

@@ -7,6 +7,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { studentAPI } from '../../services/api';
 import { LoadingPage } from '../../components/ui/LoadingSpinner';
+import HintTooltip from '../../components/ui/HintTooltip';
 import { getScoreLabel } from '../../utils/helpers';
 import toast from 'react-hot-toast';
 
@@ -216,7 +217,10 @@ const ResumeAnalyzer = () => {
 
           {/* ATS Score */}
           <Card style={{ textAlign: 'center', padding: 28 }}>
-            <SectionTitle>ATS Compatibility Score</SectionTitle>
+            <SectionTitle>
+              ATS Compatibility Score 
+              <HintTooltip text="Calculated based on readability, missing keywords, and layout structure." />
+            </SectionTitle>
             <ScoreGauge score={analysis.atsScore} />
             <p style={{ marginTop: 14, fontSize: 16, fontWeight: 600, color: 'var(--color-text-primary)' }}>
               {getScoreLabel(analysis.atsScore)}

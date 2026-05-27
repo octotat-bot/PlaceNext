@@ -7,10 +7,11 @@ import {
 import toast from 'react-hot-toast';
 import { recruiterAPI } from '../../services/api';
 import { formatDate } from '../../utils/helpers';
-import Modal from '../../components/ui/Modal';
+import Button from '../../components/ui/Button';
 import PageHeader from '../../components/ui/PageHeader';
 import StatusBadge from '../../components/ui/StatusBadge';
 import StatCard from '../../components/ui/StatCard';
+import EmptyState from '../../components/ui/EmptyState';
 import { DriveCardSkeleton } from '../../components/ui/Skeleton';
 
 const BRANCHES = [
@@ -220,14 +221,13 @@ const RecruiterJobs = () => {
           {Array(4).fill(0).map((_, i) => <DriveCardSkeleton key={i} />)}
         </div>
       ) : jobs.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '48px 20px', background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 'var(--border-radius-lg)' }}>
-          <Briefcase size={28} style={{ margin: '0 auto 10px', display: 'block', color: 'var(--color-text-tertiary)', opacity: 0.4 }} />
-          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-secondary)' }}>No jobs found</div>
-          <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 4, marginBottom: 16 }}>
-            {searchQuery ? 'Try adjusting your search' : 'Create your first job posting'}
-          </div>
-          <button className="btn btn-primary btn-sm" onClick={handleCreate}><Plus size={13} /> Post Job</button>
-        </div>
+        <EmptyState 
+          icon="ti-briefcase"
+          title="No jobs found"
+          body={searchQuery ? 'Try adjusting your search' : 'Create your first job posting'}
+          action={handleCreate}
+          actionLabel="Post Job"
+        />
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }} className="grid-responsive-2">
           {jobs.map(job => <JobCard key={job.id} job={job} onEdit={handleEdit} onDelete={handleDelete} />)}

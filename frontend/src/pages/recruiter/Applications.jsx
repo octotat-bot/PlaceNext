@@ -10,6 +10,7 @@ import { formatRelativeTime } from '../../utils/helpers';
 import PageHeader from '../../components/ui/PageHeader';
 import StatCard from '../../components/ui/StatCard';
 import StatusBadge from '../../components/ui/StatusBadge';
+import EmptyState from '../../components/ui/EmptyState';
 import { ListItemSkeleton } from '../../components/ui/Skeleton';
 
 /* ─── ApplicationCard ─── */
@@ -180,13 +181,11 @@ const RecruiterApplications = () => {
           {Array(3).fill(0).map((_, i) => <ListItemSkeleton key={i} />)}
         </div>
       ) : applications.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '48px 20px', background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 'var(--border-radius-lg)' }}>
-          <Users size={28} style={{ margin: '0 auto 10px', display: 'block', color: 'var(--color-text-tertiary)', opacity: 0.4 }} />
-          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-secondary)' }}>No applications found</div>
-          <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 4 }}>
-            {debouncedSearch ? 'Try adjusting your search' : 'Applications will appear here when candidates apply'}
-          </div>
-        </div>
+        <EmptyState 
+          icon="ti-users"
+          title="No applications found"
+          body={debouncedSearch ? 'Try adjusting your search' : 'Applications will appear here when candidates apply'}
+        />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {applications.map(app => (

@@ -4,9 +4,10 @@ import toast from 'react-hot-toast';
 import { Briefcase, FileText, CheckCircle, Calendar, ChevronRight, Plus, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { recruiterAPI } from '../../services/api';
+import PageHeader from '../../components/ui/PageHeader';
 import StatCard from '../../components/ui/StatCard';
 import StatusBadge from '../../components/ui/StatusBadge';
-import PageHeader from '../../components/ui/PageHeader';
+import EmptyState from '../../components/ui/EmptyState';
 import { StatCardSkeleton } from '../../components/ui/Skeleton';
 import { formatRelativeTime } from '../../utils/helpers';
 
@@ -44,8 +45,8 @@ const RecruiterDashboard = () => {
         }
       />
 
-      {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }} className="grid-responsive-4">
+      {/* Stat cards */}
+      <div data-tour="stat-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 28 }} className="grid-responsive-4">
         {loading ? (
           Array(4).fill(0).map((_, i) => <StatCardSkeleton key={i} />)
         ) : (<>
@@ -66,7 +67,13 @@ const RecruiterDashboard = () => {
             </Link>
           </div>
           {recentApplications.length === 0 && !loading ? (
-            <div style={{ padding: '32px 18px', textAlign: 'center', fontSize: 13, color: 'var(--color-text-tertiary)' }}>No applications yet</div>
+            <div style={{ padding: '24px 18px' }}>
+              <EmptyState 
+                icon="ti-file-text"
+                title="No applications yet"
+                body="Applications will appear here once students start applying."
+              />
+            </div>
           ) : recentApplications.map((app, idx) => (
             <div key={app.id || idx}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 18px' }}
@@ -97,7 +104,14 @@ const RecruiterDashboard = () => {
             </Link>
           </div>
           {jobPostings.length === 0 && !loading ? (
-            <div style={{ padding: '32px 18px', textAlign: 'center', fontSize: 13, color: 'var(--color-text-tertiary)' }}>No jobs posted yet</div>
+            <div style={{ padding: '24px 18px' }}>
+              <EmptyState 
+                icon="ti-briefcase"
+                title="No jobs posted"
+                body="Create a drive to start hiring."
+                cta={{ label: 'Create drive', href: '/recruiter/jobs' }}
+              />
+            </div>
           ) : jobPostings.map((job, idx) => (
             <div key={job.id || idx}>
               <div style={{ padding: '12px 18px' }}

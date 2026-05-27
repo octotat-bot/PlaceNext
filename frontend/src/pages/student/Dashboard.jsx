@@ -4,6 +4,7 @@ import { Briefcase, FileText, CheckCircle, Clock, ChevronRight, Building2, Calen
 import { useAuth } from '../../context/AuthContext';
 import { studentAPI } from '../../services/api';
 import { StatCardSkeleton, DriveCardSkeleton } from '../../components/ui/Skeleton';
+import EmptyState from '../../components/ui/EmptyState';
 import StatusBadge from '../../components/ui/StatusBadge';
 import PageHeader from '../../components/ui/PageHeader';
 import StatCard from '../../components/ui/StatCard';
@@ -105,7 +106,7 @@ const StudentDashboard = () => {
       )}
 
       {/* Stat cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 28 }} className="grid-responsive-4">
+      <div data-tour="stat-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 28 }} className="grid-responsive-4">
         {isLoading ? (
           Array(4).fill(0).map((_, i) => <StatCardSkeleton key={i} />)
         ) : (<>
@@ -118,7 +119,7 @@ const StudentDashboard = () => {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }} className="grid-responsive-2">
         {/* Available Drives */}
-        <div style={{ background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 'var(--border-radius-lg)', overflow: 'hidden' }}>
+        <div data-tour="drive-list" style={{ background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 'var(--border-radius-lg)', overflow: 'hidden' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
             <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>Available Drives</span>
             <Link to="/drives" style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: 'var(--color-text-secondary)', textDecoration: 'none' }}>
@@ -193,15 +194,13 @@ const StudentDashboard = () => {
               <DriveCardSkeleton /><DriveCardSkeleton />
             </div>
           ) : applications.length === 0 ? (
-            <div style={{ padding: '40px 20px', textAlign: 'center' }}>
-              <FileText size={28} style={{ color: 'var(--color-text-tertiary)', margin: '0 auto 10px', display: 'block', opacity: 0.4 }} />
-              <div style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>No applications yet</div>
-              <Link to="/drives" style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 6, display: 'inline-block', textDecoration: 'none' }}
-                onMouseEnter={e => e.currentTarget.style.color = 'var(--color-text-primary)'}
-                onMouseLeave={e => e.currentTarget.style.color = 'var(--color-text-secondary)'}
-              >
-                Browse drives →
-              </Link>
+            <div style={{ padding: '40px 20px' }}>
+              <EmptyState 
+                icon="ti-file-text"
+                title="No applications yet"
+                body="Keep an eye on available drives and apply to your first one."
+                cta={{ label: 'Browse drives', href: '/drives' }}
+              />
             </div>
           ) : (
             <div>

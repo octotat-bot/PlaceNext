@@ -15,6 +15,7 @@ import { StatCardSkeleton, ChartSkeleton } from '../../components/ui/Skeleton';
 import PageHeader from '../../components/ui/PageHeader';
 import StatCard from '../../components/ui/StatCard';
 import StatusBadge from '../../components/ui/StatusBadge';
+import EmptyState from '../../components/ui/EmptyState';
 import { formatDate, formatStatus, downloadCSV } from '../../utils/helpers';
 import toast from 'react-hot-toast';
 
@@ -107,7 +108,7 @@ const AdminDashboard = () => {
       />
 
       {/* Pending Recruiters Alert */}
-      {pendingRecruiters.length > 0 && (
+      {pendingRecruiters.length > 0 ? (
         <Link
           to="/admin/recruiters"
           style={{
@@ -128,10 +129,14 @@ const AdminDashboard = () => {
           </div>
           <ChevronRight size={14} style={{ color: 'var(--color-text-tertiary)' }} />
         </Link>
+      ) : (
+        <div style={{ marginBottom: 20 }}>
+          <EmptyState icon="ti-check" title="No pending approvals" body="All recruiters have been reviewed." />
+        </div>
       )}
 
       {/* Primary Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }} className="grid-responsive-4">
+      <div data-tour="stat-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }} className="grid-responsive-4">
         <StatCard label="Total Students" value={overview?.totalStudents || 0} accentColor="#3b82f6" />
         <StatCard label="Active Drives"  value={overview?.activeDrives || 0}  accentColor="#8b5cf6" />
         <StatCard label="Placed"         value={overview?.selectedStudents || 0} accentColor="#10b981" />

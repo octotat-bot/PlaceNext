@@ -98,6 +98,7 @@ const Sidebar = ({ isOpen, onClose }) => {
               onClick={onClose}
               className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
               style={{ marginBottom: 2 }}
+              data-tour={`nav-${to.split('/').pop()}`}
             >
               <Icon size={16} style={{ flexShrink: 0 }} />
               {label}

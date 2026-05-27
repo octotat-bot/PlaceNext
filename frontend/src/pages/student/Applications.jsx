@@ -6,6 +6,8 @@ import PageHeader from '../../components/ui/PageHeader';
 import StatusBadge from '../../components/ui/StatusBadge';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
+import EmptyState from '../../components/ui/EmptyState';
+import HintTooltip from '../../components/ui/HintTooltip';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { formatDate, formatDateTime, formatStatus } from '../../utils/helpers';
 import toast from 'react-hot-toast';
@@ -107,17 +109,12 @@ const Applications = () => {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '48px 20px', background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 'var(--border-radius-lg)' }}>
-          <FileText size={28} style={{ margin: '0 auto 10px', display: 'block', color: 'var(--color-text-tertiary)', opacity: 0.4 }} />
-          <div style={{ fontSize: 14, color: 'var(--color-text-secondary)', fontWeight: 500 }}>
-            {filter === 'all' ? 'No applications yet' : `No ${formatStatus(filter)} applications`}
-          </div>
-          {filter === 'all' && (
-            <button className="btn btn-primary btn-sm" style={{ marginTop: 12 }} onClick={() => navigate('/drives')}>
-              Browse Drives
-            </button>
-          )}
-        </div>
+        <EmptyState
+          icon="ti-file-text"
+          title={filter === 'all' ? "You haven't applied to anything yet" : `No ${formatStatus(filter)} applications`}
+          body="Browse open drives and apply with one click. Your resume and profile are sent automatically."
+          cta={filter === 'all' ? { label: 'Browse drives', href: '/drives' } : null}
+        />
       ) : (
         <div style={{ background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 'var(--border-radius-lg)', overflow: 'hidden' }}>
           {filtered.map((app, idx) => (
@@ -197,8 +194,9 @@ const Applications = () => {
                 <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginTop: 2 }}>
                   {selectedApp.driveId?.companyId?.companyName}
                 </div>
-                <div style={{ marginTop: 6 }}>
+                <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <StatusBadge status={selectedApp.applicationStatus} />
+                  <HintTooltip text="Updated by the recruiter. You'll receive a notification on every status change." />
                 </div>
               </div>
             </div>
