@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────
+   index.css — Minimal host file.
+   All design tokens + component classes live in
+   design-system.css (imported in main.jsx).
+   ───────────────────────────────────────────────────── */
+
+/* Animation utility */
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(17, 24, 39, 0.4);
+}
+@media (max-width: 640px) {
+  .modal-overlay { padding: 0; align-items: flex-end; }
+}
+
+/* Table overflow wrapper */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Responsive grid helpers */
+@media (max-width: 768px) {
+  .grid-responsive-4 { grid-template-columns: 1fr 1fr !important; }
+  .grid-responsive-3 { grid-template-columns: 1fr 1fr !important; }
+  .grid-responsive-2 { grid-template-columns: 1fr !important; }
+  .hide-mobile { display: none !important; }
+}
+@media (max-width: 540px) {
+  .grid-responsive-3 { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 480px) {
+  .grid-responsive-4 { grid-template-columns: 1fr !important; }
+}
+
+/* Sidebar offset — Tailwind lg:ml-[220px] equivalent */
+@media (min-width: 1024px) {
+  .lg\:ml-\[220px\] { margin-left: 220px; }
+  .lg\:translate-x-0 { transform: translateX(0) !important; }
+  .lg\:hidden { display: none !important; }
+}
+@media (min-width: 640px) {
+  .sm\:block { display: block !important; }
+}
