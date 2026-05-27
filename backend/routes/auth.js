@@ -11,6 +11,7 @@ const {
     updatePassword,
     logout,
     completeOnboarding,
+    resetOnboarding,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const {
@@ -32,6 +33,7 @@ router.put('/password', protect, updatePassword);
 router.post('/resend-verification', protect, resendVerification);
 router.post('/logout', protect, logout);
 router.patch('/complete-onboarding', protect, completeOnboarding);
+router.patch('/reset-onboarding',   protect, resetOnboarding);
 
 module.exports = router;
 

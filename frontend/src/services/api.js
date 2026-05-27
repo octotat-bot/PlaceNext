@@ -114,6 +114,7 @@ export const studentAPI = {
             headers: { 'Content-Type': 'multipart/form-data' },
         }),
     completeOnboarding: () => api.patch('/auth/complete-onboarding'),
+    resetOnboarding:    () => api.patch('/auth/reset-onboarding'),
 
     // Resume
     uploadResume: (formData) =>
