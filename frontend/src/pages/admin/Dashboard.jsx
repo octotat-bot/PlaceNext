@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   Users, Briefcase, Building2, DollarSign, CheckCircle,
   TrendingUp, FileText, PieChart as PieChartIcon, UserCheck,
-  ChevronRight, Download, AlertTriangle,
+  ChevronRight, Download, AlertTriangle, X,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -36,6 +36,7 @@ const AdminDashboard = () => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pendingRecruiters, setPendingRecruiters] = useState([]);
+  const [dismissWarning, setDismissWarning] = useState(() => sessionStorage.getItem('dismiss_admin_warning') === 'true');
 
   useEffect(() => {
     fetchAnalytics();
@@ -110,16 +111,17 @@ const AdminDashboard = () => {
       />
 
       {/* Default Password Warning */}
-      {user?.email === 'admin@placement.com' && (
+      {user?.email === 'admin@placement.com' && !dismissWarning && (
         <div data-tour="password-warning" style={{
           display: 'flex', alignItems: 'flex-start', gap: 12,
           padding: '16px 20px', marginBottom: 24,
           background: 'rgba(239, 68, 68, 0.1)',
           border: '1px solid rgba(239, 68, 68, 0.3)',
           borderRadius: 'var(--border-radius-md)',
+          position: 'relative',
         }}>
           <AlertTriangle size={18} style={{ color: '#ef4444', flexShrink: 0, marginTop: 1 }} />
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, paddingRight: 24 }}>
             <div style={{ fontSize: 14, fontWeight: 600, color: '#ef4444' }}>
               Security Warning: Default Credentials in Use
             </div>
@@ -127,6 +129,30 @@ const AdminDashboard = () => {
               You are logged in using the default hardcoded admin account. Please consider changing your password from your profile settings to secure the portal.
             </div>
           </div>
+          <button 
+            onClick={() => {
+              setDismissWarning(true);
+              sessionStorage.setItem('dismiss_admin_warning', 'true');
+            }}
+            style={{
+              position: 'absolute',
+              top: 16,
+              right: 16,
+              background: 'none',
+              border: 'none',
+              padding: 4,
+              cursor: 'pointer',
+              color: 'var(--color-text-secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 4,
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'none'}
+          >
+            <X size={16} />
+          </button>
         </div>
       )}
 
