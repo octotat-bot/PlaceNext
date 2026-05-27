@@ -113,17 +113,17 @@ const AdminDashboard = () => {
       {user?.email === 'admin@placement.com' && (
         <div data-tour="password-warning" style={{
           display: 'flex', alignItems: 'flex-start', gap: 12,
-          padding: '12px 16px', marginBottom: 20,
-          background: 'var(--color-background-danger)',
-          border: '0.5px solid var(--color-text-danger)',
+          padding: '16px 20px', marginBottom: 24,
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
           borderRadius: 'var(--border-radius-md)',
         }}>
-          <AlertTriangle size={15} style={{ color: 'var(--color-text-danger)', flexShrink: 0, marginTop: 2 }} />
+          <AlertTriangle size={18} style={{ color: '#ef4444', flexShrink: 0, marginTop: 1 }} />
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: '#ef4444' }}>
               Security Warning: Default Credentials in Use
             </div>
-            <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 4 }}>
+            <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginTop: 6, lineHeight: 1.5 }}>
               You are logged in using the default hardcoded admin account. Please consider changing your password from your profile settings to secure the portal.
             </div>
           </div>
