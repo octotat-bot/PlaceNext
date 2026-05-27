@@ -232,17 +232,18 @@ const OnboardingWizard = () => {
             showSkipButton
             steps={steps}
             tooltipComponent={Tooltip}
-            spotlightPadding={6}
+            spotlightPadding={10}
             styles={{
                 options: {
                     arrowColor: '#0f0f0f',
-                    overlayColor: 'rgba(0, 0, 0, 0.82)',
+                    overlayColor: 'rgba(0, 0, 0, 0.86)',
                     zIndex: 10000,
                 },
                 spotlight: {
                     borderRadius: 0,
-                    border: '2px solid rgba(250, 204, 21, 0.65)',
-                    boxShadow: '0 0 0 4px rgba(250, 204, 21, 0.08)',
+                    border: '2px solid #facc15',
+                    outline: '6px solid rgba(250, 204, 21, 0.12)',
+                    boxShadow: '0 0 0 2px rgba(250, 204, 21, 0.5), inset 0 0 60px rgba(250, 204, 21, 0.04)',
                 },
                 beacon: { display: 'none' },
             }}
