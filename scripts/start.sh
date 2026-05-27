@@ -27,6 +27,6 @@ echo "$FRONTEND_PID" >> scripts/.pids
 
 echo ""
 echo "PlaceNext is now running!"
-echo "Backend is running on port 5000"
+echo "Backend is running on port 5001"
 echo "Frontend is running on port 5173 (usually)"
 echo "To stop the servers, run: ./scripts/stop.sh"

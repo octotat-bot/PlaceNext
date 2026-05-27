@@ -25,3 +25,4 @@ jspm_packages/
 dist/
 build/
 out/
+scripts/.pids
