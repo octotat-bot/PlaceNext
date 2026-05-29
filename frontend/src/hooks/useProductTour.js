@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-export function useProductTour(steps = []) {
+export function useProductTour(steps = [], { splashDone = true } = {}) {
     const { user } = useAuth();
     const storageKey = user ? `tour_complete_${user._id}` : null;
     const [active, setActive] = useState(false);
@@ -15,10 +15,15 @@ export function useProductTour(steps = []) {
 
     useEffect(() => {
         if (!storageKey) return;
+        // Don't start the tour if welcome splash hasn't finished yet
+        if (!splashDone) return;
+
+        // Delay start to give lazy-loaded pages time to render their data-tour elements
+        // Also accounts for the 2.5s InitLoader + React hydration
         const timer = setTimeout(() => {
             if (!localStorage.getItem(storageKey)) setActive(true);
-        }, 600);
-        
+        }, 1800); // longer delay — DOM fully painted by then
+
         const handleRestart = () => {
             if (storageKey) localStorage.removeItem(storageKey);
             setStep(0);
@@ -31,7 +36,7 @@ export function useProductTour(steps = []) {
             clearTimeout(timer);
             window.removeEventListener('restart_product_tour', handleRestart);
         };
-    }, [storageKey]);
+    }, [storageKey, splashDone]);
 
     const next = useCallback(() => {
         if (step < steps.length - 1) setStep(s => s + 1);
@@ -41,7 +46,6 @@ export function useProductTour(steps = []) {
     const back = useCallback(() => setStep(s => Math.max(0, s - 1)), []);
 
     const restart = useCallback(() => {
-        // Trigger the custom event so the global instance picks it up
         window.dispatchEvent(new Event('restart_product_tour'));
     }, []);
 

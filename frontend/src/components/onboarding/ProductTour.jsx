@@ -35,10 +35,10 @@ const getSteps = (role) => {
     return [];
 };
 
-export default function ProductTour() {
+export default function ProductTour({ splashDone = true }) {
     const { user } = useAuth();
     const steps = getSteps(user?.role);
-    const { active, step, currentStep, next, back, complete } = useProductTour(steps);
+    const { active, step, currentStep, next, back, complete } = useProductTour(steps, { splashDone });
     
     const [targetRect, setTargetRect] = useState(null);
 
@@ -58,11 +58,12 @@ export default function ProductTour() {
 
         let attempt = 0;
         let t;
+        const MAX_ATTEMPTS = 25; // 2.5 seconds max wait for DOM element
 
         const measure = () => {
             const el = document.querySelector(currentStep.target);
             if (!el || (el.getBoundingClientRect().width === 0)) {
-                if (attempt++ < 10) t = setTimeout(measure, 100);
+                if (attempt++ < MAX_ATTEMPTS) t = setTimeout(measure, 100);
                 return;
             }
             const r = el.getBoundingClientRect();

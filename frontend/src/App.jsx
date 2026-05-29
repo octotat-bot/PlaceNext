@@ -83,7 +83,8 @@ function AppShell({ children }) {
 
       {children}
 
-      {!showSplash && <ProductTour />}
+      {/* Only mount ProductTour after splash is fully dismissed */}
+      {!showSplash && <ProductTour splashDone={splashDone} />}
     </>
   );
 }
