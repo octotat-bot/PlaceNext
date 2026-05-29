@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 
 export function useProductTour(steps = [], { splashDone = true } = {}) {
     const { user } = useAuth();
-    const storageKey = user ? `tour_complete_${user._id}` : null;
+    const storageKey = user ? `tour_complete_${user.id || user._id}` : null;
     const [active, setActive] = useState(false);
     const [step, setStep] = useState(0);
 

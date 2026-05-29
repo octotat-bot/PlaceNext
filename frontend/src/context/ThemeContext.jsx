@@ -25,7 +25,7 @@ function applyTheme(theme) {
 export function ThemeProvider({ children }) {
   const { user } = useAuth();
 
-  const storageKey = user ? `theme_${user._id}` : 'theme_guest';
+  const storageKey = user ? `theme_${user.id || user._id}` : 'theme_guest';
 
   const [themeId, setThemeId] = useState(() => {
     return localStorage.getItem(storageKey) ?? DEFAULT_THEME_ID;
@@ -45,9 +45,9 @@ export function ThemeProvider({ children }) {
       setThemeId(DEFAULT_THEME_ID);
       return;
     }
-    const saved = localStorage.getItem(`theme_${user._id}`) ?? DEFAULT_THEME_ID;
+    const saved = localStorage.getItem(`theme_${user.id || user._id}`) ?? DEFAULT_THEME_ID;
     setThemeId(saved);
-  }, [user?._id]);
+  }, [user?.id, user?._id]);
 
   const changeTheme = (id) => {
     setThemeId(id);

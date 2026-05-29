@@ -91,7 +91,7 @@ const getSlidesForRole = (role, user) => {
 export default function WelcomeSplash({ onComplete }) {
     const { user } = useAuth();
     const [step, setStep] = useState(0);
-    const storageKey = user ? `onboarding_splash_${user._id}` : null;
+    const storageKey = user ? `onboarding_splash_${user.id || user._id}` : null;
 
     useEffect(() => {
         if (storageKey && localStorage.getItem(storageKey)) {

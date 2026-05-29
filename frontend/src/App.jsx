@@ -68,7 +68,7 @@ function AppShell({ children }) {
   const { user, profile } = useAuth();
   const [splashDone, setSplashDone] = useState(false);
 
-  const splashKey = user ? `onboarding_splash_${user._id}` : null;
+  const splashKey = user ? `onboarding_splash_${user.id || user._id}` : null;
   const showSplash = splashKey && !localStorage.getItem(splashKey) && !splashDone;
 
   return (
