@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import {
-  User, Mail, Building2, Lock, Eye, EyeOff, Save, Shield, Bell,
+  User, Mail, Building2, Lock, Eye, EyeOff, Save, Shield, Bell, Palette,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { recruiterAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 import PageHeader from '../../components/ui/PageHeader';
+import ThemePicker from '../../components/settings/ThemePicker';
 
 const TABS = [
   { id: 'account',       label: 'Account',       icon: User },
   { id: 'security',      label: 'Security',       icon: Shield },
   { id: 'notifications', label: 'Notifications',  icon: Bell },
+  { id: 'appearance',    label: 'Appearance',     icon: Palette },
 ];
 
 const SettingsSection = ({ title, children }) => (
@@ -211,6 +213,13 @@ const RecruiterSettings = () => {
               </div>
             ))}
           </div>
+        </SettingsSection>
+      )}
+
+      {/* Appearance */}
+      {activeTab === 'appearance' && (
+        <SettingsSection title="Appearance">
+          <ThemePicker />
         </SettingsSection>
       )}
     </div>

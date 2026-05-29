@@ -19,6 +19,37 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
     
     <title>AI Placement Portal - Smart Campus Recruitment</title>
+
+    <!-- Anti-flash theme script: applies theme before React hydrates -->
+    <script>
+      (function () {
+        try {
+          var themeVars = {
+            'midnight-ink': { '--color-background-tertiary': '#f8f9fc', '--color-background-primary': '#ffffff', '--color-text-primary': '#0f172a' },
+            'obsidian':     { '--color-background-tertiary': '#09090b', '--color-background-primary': '#18181b', '--color-text-primary': '#fafafa' },
+            'aurora':       { '--color-background-tertiary': '#faf9f7', '--color-background-primary': '#ffffff', '--color-text-primary': '#1c1917' },
+            'slate-pro':    { '--color-background-tertiary': '#e8eef4', '--color-background-primary': '#ffffff', '--color-text-primary': '#0f1729' },
+            'rosewood':     { '--color-background-tertiary': '#fdf8f8', '--color-background-primary': '#ffffff', '--color-text-primary': '#1a0e0e' },
+            'void':         { '--color-background-tertiary': '#000000', '--color-background-primary': '#0a0a0a', '--color-text-primary': '#f5f5f5' },
+          };
+          var saved = null;
+          for (var i = 0; i < localStorage.length; i++) {
+            var k = localStorage.key(i);
+            if (k && k.startsWith('theme_')) {
+              saved = localStorage.getItem(k);
+              break;
+            }
+          }
+          var id = (saved && themeVars[saved]) ? saved : 'midnight-ink';
+          var vars = themeVars[id];
+          var root = document.documentElement;
+          root.setAttribute('data-theme', id);
+          Object.keys(vars).forEach(function(prop) {
+            root.style.setProperty(prop, vars[prop]);
+          });
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

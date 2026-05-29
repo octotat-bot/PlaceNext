@@ -4,11 +4,13 @@ import { useAuth } from '../../context/AuthContext';
 import { authAPI, adminAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 import PageHeader from '../../components/ui/PageHeader';
+import ThemePicker from '../../components/settings/ThemePicker';
 
 const TABS = [
-  { id: 'account',  label: 'My Account' },
-  { id: 'security', label: 'Security' },
-  { id: 'users',    label: 'Create User' },
+  { id: 'account',    label: 'My Account' },
+  { id: 'security',   label: 'Security' },
+  { id: 'users',      label: 'Create User' },
+  { id: 'appearance', label: 'Appearance' },
 ];
 
 const Section = ({ title, subtitle, children }) => (
@@ -207,6 +209,13 @@ const AdminSettings = () => {
             </ul>
           </div>
         </div>
+      )}
+
+      {/* ── Appearance ── */}
+      {activeTab === 'appearance' && (
+        <Section title="Theme" subtitle="Personalise your interface">
+          <ThemePicker />
+        </Section>
       )}
     </div>
   );
