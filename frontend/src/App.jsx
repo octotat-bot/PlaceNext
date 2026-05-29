@@ -42,14 +42,20 @@ const RecruiterJobs = lazy(() => import('./pages/recruiter/Jobs'));
 const RecruiterApplications = lazy(() => import('./pages/recruiter/Applications'));
 const RecruiterInterviews = lazy(() => import('./pages/recruiter/Interviews'));
 const RecruiterSettings = lazy(() => import('./pages/recruiter/Settings'));
-// Minimum loading screen duration (ms)
+// Minimum loading screen duration (ms) — only shown once per session
 const MIN_LOAD_MS = 2500;
+const INTRO_KEY = 'placenext_intro_shown';
 
 function InitLoader({ children }) {
-  const [ready, setReady] = useState(false);
+  const alreadySeen = sessionStorage.getItem(INTRO_KEY) === 'true';
+  const [ready, setReady] = useState(alreadySeen);
 
   useEffect(() => {
-    const timer = setTimeout(() => setReady(true), MIN_LOAD_MS);
+    if (alreadySeen) return;
+    const timer = setTimeout(() => {
+      setReady(true);
+      sessionStorage.setItem(INTRO_KEY, 'true');
+    }, MIN_LOAD_MS);
     return () => clearTimeout(timer);
   }, []);
 
