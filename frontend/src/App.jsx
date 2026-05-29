@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
@@ -42,6 +42,21 @@ const RecruiterJobs = lazy(() => import('./pages/recruiter/Jobs'));
 const RecruiterApplications = lazy(() => import('./pages/recruiter/Applications'));
 const RecruiterInterviews = lazy(() => import('./pages/recruiter/Interviews'));
 const RecruiterSettings = lazy(() => import('./pages/recruiter/Settings'));
+// Minimum loading screen duration (ms)
+const MIN_LOAD_MS = 2500;
+
+function InitLoader({ children }) {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setReady(true), MIN_LOAD_MS);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!ready) return <PageLoader message="Starting up…" />;
+  return children;
+}
+
 
 function AppShell({ children }) {
   const { user, profile } = useAuth();
@@ -73,7 +88,8 @@ function App() {
       <AuthProvider>
         <ThemeProvider>
           <Router>
-            <Suspense fallback={<PageLoader message="Loading..." />}>
+            <InitLoader>
+              <Suspense fallback={<PageLoader message="Loading..." />}>
               <AppShell>
                 <Routes>
                 {/* Public Routes with Animation */}
@@ -128,7 +144,8 @@ function App() {
                 <Route path="*" element={<Navigate to="/login" replace />} />
                 </Routes>
               </AppShell>
-            </Suspense>
+              </Suspense>
+            </InitLoader>
           </Router>
 
           {/* Toast Notifications */}
