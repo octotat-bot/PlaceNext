@@ -33,13 +33,17 @@
             'void':         { '--color-background-tertiary': '#000000', '--color-background-primary': '#0a0a0a', '--color-text-primary': '#f5f5f5' },
           };
           var saved = null;
-          for (var i = 0; i < localStorage.length; i++) {
-            var k = localStorage.key(i);
-            if (k && k.startsWith('theme_')) {
-              saved = localStorage.getItem(k);
-              break;
+          try {
+            var userStr = sessionStorage.getItem('user');
+            var userId = null;
+            if (userStr) {
+              var user = JSON.parse(userStr);
+              userId = user._id || user.id;
             }
-          }
+            var storageKey = userId ? 'theme_' + userId : 'theme_guest';
+            saved = localStorage.getItem(storageKey);
+          } catch (err) {}
+
           var id = (saved && themeVars[saved]) ? saved : 'midnight-ink';
           var vars = themeVars[id];
           var root = document.documentElement;
