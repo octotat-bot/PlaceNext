@@ -14,6 +14,7 @@ import { adminAPI } from '../../services/api';
 import api from '../../services/api';
 import { StatCardSkeleton, ChartSkeleton } from '../../components/ui/Skeleton';
 import PageHeader from '../../components/ui/PageHeader';
+import Modal from '../../components/ui/Modal';
 import StatCard from '../../components/ui/StatCard';
 import StatusBadge from '../../components/ui/StatusBadge';
 import EmptyState from '../../components/ui/EmptyState';
@@ -36,6 +37,7 @@ const AdminDashboard = () => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pendingRecruiters, setPendingRecruiters] = useState([]);
+  const [showPendingModal, setShowPendingModal] = useState(false);
   const [dismissWarning, setDismissWarning] = useState(() => sessionStorage.getItem('dismiss_admin_warning') === 'true');
 
   useEffect(() => {
@@ -54,7 +56,11 @@ const AdminDashboard = () => {
   const fetchPendingRecruiters = async () => {
     try {
       const { data } = await api.get('/admin/recruiters/pending');
-      setPendingRecruiters(data.data || []);
+      const recruiters = data.data || [];
+      setPendingRecruiters(recruiters);
+      if (recruiters.length > 0 && sessionStorage.getItem('dismiss_pending_recruiters') !== 'true') {
+        setShowPendingModal(true);
+      }
     } catch { /* silent */ }
   };
 
@@ -156,33 +162,43 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* Pending Recruiters Alert */}
-      {pendingRecruiters.length > 0 ? (
-        <Link
-          to="/admin/recruiters"
-          style={{
-            display: 'flex', alignItems: 'center', gap: 12,
-            padding: '12px 16px', marginBottom: 20,
-            background: 'var(--color-background-warning)',
-            border: '0.5px solid var(--color-text-warning)',
-            borderRadius: 'var(--border-radius-md)',
-            textDecoration: 'none',
-          }}
-        >
-          <UserCheck size={15} style={{ color: 'var(--color-text-warning)', flexShrink: 0 }} />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>
-              {pendingRecruiters.length} recruiter{pendingRecruiters.length > 1 ? 's' : ''} pending approval
-            </div>
-            <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>Click to review</div>
+      {/* Pending Recruiters Modal */}
+      <Modal
+        isOpen={showPendingModal}
+        onClose={() => {
+          setShowPendingModal(false);
+          sessionStorage.setItem('dismiss_pending_recruiters', 'true');
+        }}
+        title="Recruiter Approvals Needed"
+        footer={
+          <>
+            <button
+              className="btn btn-sm"
+              onClick={() => {
+                setShowPendingModal(false);
+                sessionStorage.setItem('dismiss_pending_recruiters', 'true');
+              }}
+            >
+              Remind Me Later
+            </button>
+            <Link to="/admin/recruiters" className="btn btn-primary btn-sm" style={{ textDecoration: 'none' }}>
+              Review Requests
+            </Link>
+          </>
+        }
+      >
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+          <UserCheck size={28} style={{ color: 'var(--color-text-warning)', flexShrink: 0 }} />
+          <div>
+            <p style={{ fontSize: 14, color: 'var(--color-text-primary)', marginBottom: 8 }}>
+              You have <strong>{pendingRecruiters.length}</strong> recruiter account{pendingRecruiters.length > 1 ? 's' : ''} waiting for approval.
+            </p>
+            <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+              Recruiters cannot post jobs or access the portal until an admin reviews and approves their accounts.
+            </p>
           </div>
-          <ChevronRight size={14} style={{ color: 'var(--color-text-tertiary)' }} />
-        </Link>
-      ) : (
-        <div style={{ marginBottom: 20 }}>
-          <EmptyState icon="ti-check" title="No pending approvals" body="All recruiters have been reviewed." />
         </div>
-      )}
+      </Modal>
 
       {/* Primary Stats */}
       <div data-tour="stat-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }} className="grid-responsive-4">
