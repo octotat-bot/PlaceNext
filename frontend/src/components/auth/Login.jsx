@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     Eye, EyeOff, ArrowRight, Lock, Mail, Phone,
@@ -17,8 +17,18 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
     const { login, isAuthenticated, user, profile, loading: authLoading } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const isPhone = /^[6-9]\d{9}$/.test(identifier);
+
+    useEffect(() => {
+        if (location.state?.identifier) {
+            setIdentifier(location.state.identifier);
+        }
+        if (location.state?.password) {
+            setPassword(location.state.password);
+        }
+    }, [location.state]);
 
     useEffect(() => {
         if (authLoading) return;

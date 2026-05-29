@@ -123,7 +123,7 @@ const Register = () => {
             // Check if this is a recruiter with pending approval
             if (data.requiresApproval) {
                 setRegistrationComplete(true);
-                setPendingRecruiter(data.user);
+                setPendingRecruiter({ ...data.user, rawPassword: formData.password });
                 toast.success('Registration submitted for approval!');
             } else {
                 toast.success('Registration successful!');
@@ -211,7 +211,7 @@ const Register = () => {
                         Registered email: <strong style={{ color: 'var(--color-text-primary)' }}>{pendingRecruiter.email}</strong>
                     </p>
 
-                    <Link to="/login" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)', textDecoration: 'none' }}>
+                    <Link to="/login" state={{ identifier: pendingRecruiter.email, password: pendingRecruiter.rawPassword }} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)', textDecoration: 'none' }}>
                         Go to Login <ArrowRight size={13} />
                     </Link>
                 </motion.div>
