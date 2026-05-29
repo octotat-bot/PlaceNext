@@ -1,10 +1,165 @@
+import { useState, useRef, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Building2, Briefcase, FileText, Users,
-  FileSearch, CalendarDays, Settings, X, ClipboardList, UserCheck,
+  FileSearch, CalendarDays, Settings, X, ClipboardList, UserCheck, Palette,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 
+// ---------------------------------------------------------------------------
+// Compact theme switcher popover for the sidebar
+// ---------------------------------------------------------------------------
+function SidebarThemePicker() {
+  const { themeId, changeTheme, themes } = useTheme();
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      {/* Trigger button */}
+      <button
+        onClick={() => setOpen(v => !v)}
+        title="Change theme"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          width: '100%',
+          padding: '8px 10px',
+          borderRadius: 'var(--border-radius-md)',
+          background: open ? 'var(--color-background-secondary)' : 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          transition: 'background 0.15s',
+          color: 'var(--color-text-secondary)',
+          fontSize: 13,
+          fontFamily: 'inherit',
+        }}
+        onMouseEnter={e => e.currentTarget.style.background = 'var(--color-background-secondary)'}
+        onMouseLeave={e => { if (!open) e.currentTarget.style.background = 'transparent'; }}
+      >
+        {/* Live swatch — shows current theme's accent dot */}
+        <div style={{
+          width: 16,
+          height: 16,
+          borderRadius: '50%',
+          background: `conic-gradient(${themes.find(t => t.id === themeId)?.swatchColors.join(', ')})`,
+          flexShrink: 0,
+          border: '1.5px solid var(--color-border-secondary)',
+        }} />
+        <span style={{ flex: 1, textAlign: 'left' }}>Theme</span>
+        <Palette size={13} style={{ opacity: 0.5 }} />
+      </button>
+
+      {/* Popover — opens upward */}
+      {open && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 'calc(100% + 8px)',
+            left: 0,
+            right: 0,
+            background: 'var(--color-background-primary)',
+            border: '0.5px solid var(--color-border-secondary)',
+            borderRadius: 'var(--border-radius-lg)',
+            padding: 12,
+            zIndex: 200,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
+          }}
+        >
+          <div style={{
+            fontSize: 10,
+            fontWeight: 600,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            color: 'var(--color-text-tertiary)',
+            marginBottom: 10,
+          }}>
+            Appearance
+          </div>
+
+          {/* 3×2 grid of theme swatches */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
+            {themes.map(theme => {
+              const selected = themeId === theme.id;
+              return (
+                <button
+                  key={theme.id}
+                  onClick={() => { changeTheme(theme.id); setOpen(false); }}
+                  title={theme.name}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 5,
+                    padding: '8px 4px',
+                    borderRadius: 8,
+                    border: selected
+                      ? `1.5px solid ${theme.vars['--accent']}`
+                      : '1.5px solid transparent',
+                    background: selected
+                      ? theme.vars['--accent-bg']
+                      : 'var(--color-background-secondary)',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s',
+                    outline: 'none',
+                  }}
+                  onMouseEnter={e => {
+                    if (!selected) e.currentTarget.style.background = 'var(--color-background-tertiary)';
+                  }}
+                  onMouseLeave={e => {
+                    if (!selected) e.currentTarget.style.background = 'var(--color-background-secondary)';
+                  }}
+                >
+                  {/* Conic swatch */}
+                  <div style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: '50%',
+                    background: `conic-gradient(${theme.swatchColors.join(', ')})`,
+                    flexShrink: 0,
+                    boxShadow: selected ? `0 0 0 2px ${theme.vars['--accent']}44` : 'none',
+                  }} />
+                  <span style={{
+                    fontSize: 9,
+                    fontWeight: selected ? 600 : 400,
+                    color: selected ? theme.vars['--accent'] : 'var(--color-text-tertiary)',
+                    lineHeight: 1,
+                    textAlign: 'center',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    maxWidth: 48,
+                  }}>
+                    {theme.name}
+                  </span>
+                  {selected && (
+                    <div style={{ width: 4, height: 4, borderRadius: '50%', background: theme.vars['--accent'] }} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Sidebar
+// ---------------------------------------------------------------------------
 const Sidebar = ({ isOpen, onClose }) => {
   const { user } = useAuth();
 
@@ -106,8 +261,9 @@ const Sidebar = ({ isOpen, onClose }) => {
           ))}
         </nav>
 
-        {/* Settings */}
-        <div style={{ padding: '8px', borderTop: '0.5px solid var(--color-border-tertiary)' }}>
+        {/* Bottom: Theme picker + Settings */}
+        <div style={{ padding: '8px', borderTop: '0.5px solid var(--color-border-tertiary)', display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <SidebarThemePicker />
           <NavLink
             to={settingsPath}
             onClick={onClose}

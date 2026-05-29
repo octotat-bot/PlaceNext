@@ -18,7 +18,6 @@ import { studentAPI } from '../../services/api';
 import Avatar from '../../components/ui/Avatar';
 import ProgressBar from '../../components/ui/ProgressBar';
 import toast from 'react-hot-toast';
-import ThemePicker from '../../components/settings/ThemePicker';
 
 /* ── tiny reusable field wrappers ── */
 const Field = ({ label, error, children }) => (
@@ -545,15 +544,6 @@ const Profile = () => {
                     }
                 </button>
             </form>
-
-            {/* ── Appearance ── */}
-            <div style={{
-                marginTop: 32,
-                paddingTop: 24,
-                borderTop: '0.5px solid var(--color-border-tertiary)',
-            }}>
-                <ThemePicker />
-            </div>
         </div>
     );
 };
