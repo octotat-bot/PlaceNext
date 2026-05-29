@@ -70,8 +70,8 @@ function AppShell({ children }) {
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <ThemeProvider>
           <Router>
             <Suspense fallback={<PageLoader message="Loading..." />}>
               <AppShell>
@@ -130,7 +130,7 @@ function App() {
               </AppShell>
             </Suspense>
           </Router>
-          
+
           {/* Toast Notifications */}
           <Toaster
             position="top-right"
@@ -159,8 +159,8 @@ function App() {
               },
             }}
           />
-        </AuthProvider>
-      </ThemeProvider>
+        </ThemeProvider>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }
