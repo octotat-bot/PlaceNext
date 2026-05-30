@@ -293,7 +293,7 @@ const Login = () => {
                         <div className="eyebrow" style={{ textAlign: 'center', marginBottom: 10 }}>Quick Login</div>
                         <button
                             type="button"
-                            onClick={() => { setIdentifier('admin@placement.com'); setPassword('admin123'); }}
+                            onClick={() => { setIdentifier('admin@placementcell.edu'); setPassword('Admin@123!'); }}
                             className="btn btn-primary btn-sm"
                             style={{ width: '100%', justifyContent: 'center' }}
                         >
