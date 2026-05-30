@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import {
-  User, Mail, Building2, Lock, Eye, EyeOff, Save, Shield, Bell, Palette,
+  User, Mail, Building2, Lock, Eye, EyeOff, Save, Shield, Bell, Palette, RotateCcw,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { recruiterAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 import PageHeader from '../../components/ui/PageHeader';
 import ThemePicker from '../../components/settings/ThemePicker';
+import { useWalkthroughReset } from '../../context/WalkthroughContext';
 
 const TABS = [
   { id: 'account',       label: 'Account',       icon: User },
@@ -36,6 +37,25 @@ const FieldRow = ({ label, children, hint }) => (
     {hint && <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginTop: 4 }}>{hint}</div>}
   </div>
 );
+
+function WalkthroughResetButton() {
+  const { resetWalkthrough } = useWalkthroughReset();
+  return (
+    <div style={{ marginTop: 24, paddingTop: 20, borderTop: '0.5px solid var(--color-border-tertiary)' }}>
+      <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 4 }}>App walkthrough</div>
+      <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 12, lineHeight: 1.5 }}>
+        Restart the guided tour to revisit features you may have missed.
+      </div>
+      <button
+        className="btn"
+        onClick={() => { resetWalkthrough(); toast.success('Walkthrough reset — it will show on next page load.'); }}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13 }}
+      >
+        <RotateCcw size={13} /> Restart walkthrough
+      </button>
+    </div>
+  );
+}
 
 const InputWithIcon = ({ icon: Icon, ...props }) => (
   <div style={{ position: 'relative' }}>
@@ -220,6 +240,7 @@ const RecruiterSettings = () => {
       {activeTab === 'appearance' && (
         <SettingsSection title="Appearance">
           <ThemePicker />
+          <WalkthroughResetButton />
         </SettingsSection>
       )}
     </div>

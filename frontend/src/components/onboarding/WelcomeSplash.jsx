@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
@@ -91,18 +91,7 @@ const getSlidesForRole = (role, user) => {
 export default function WelcomeSplash({ onComplete }) {
     const { user } = useAuth();
     const [step, setStep] = useState(0);
-    const storageKey = user ? `onboarding_splash_${user.id || user._id}` : null;
-
-    useEffect(() => {
-        if (storageKey && localStorage.getItem(storageKey)) {
-            onComplete();
-        }
-    }, [storageKey, onComplete]);
-
-    const finish = () => {
-        if (storageKey) localStorage.setItem(storageKey, 'true');
-        onComplete();
-    };
+    const finish = () => onComplete();
 
     const slides = getSlidesForRole(user?.role, user);
     if (!slides || slides.length === 0) return null;

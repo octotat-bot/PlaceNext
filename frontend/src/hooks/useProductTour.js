@@ -1,53 +1,44 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../context/AuthContext';
+// src/hooks/useProductTour.js
+// Manages the tour step state.
+// AppShell decides WHEN to mount ProductTour (via useWalkthroughGate).
+// Once mounted, this hook auto-starts the tour after a short delay,
+// and calls onDone/onSkip when the user finishes or skips.
+// Storage writes (marking walkthrough done) happen in AppShell via useWalkthroughGate.
 
-export function useProductTour(steps = [], { splashDone = true } = {}) {
-    const { user } = useAuth();
-    const storageKey = user ? `tour_complete_${user.id || user._id}` : null;
+import { useState, useEffect, useCallback } from 'react';
+
+export function useProductTour(steps = [], { onDone, onSkip } = {}) {
     const [active, setActive] = useState(false);
     const [step, setStep] = useState(0);
 
+    // Auto-start once mounted — wait for DOM elements to be painted
+    useEffect(() => {
+        if (!steps.length) return;
+        const timer = setTimeout(() => setActive(true), 1200);
+        return () => clearTimeout(timer);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
     const complete = useCallback(() => {
-        if (storageKey) localStorage.setItem(storageKey, 'true');
         setActive(false);
         setStep(0);
-    }, [storageKey]);
+        if (onDone) onDone();
+    }, [onDone]);
 
-    useEffect(() => {
-        if (!storageKey) return;
-        // Don't start the tour if welcome splash hasn't finished yet
-        if (!splashDone) return;
-
-        // Delay start to give lazy-loaded pages time to render their data-tour elements
-        // Also accounts for the 2.5s InitLoader + React hydration
-        const timer = setTimeout(() => {
-            if (!localStorage.getItem(storageKey)) setActive(true);
-        }, 1800); // longer delay — DOM fully painted by then
-
-        const handleRestart = () => {
-            if (storageKey) localStorage.removeItem(storageKey);
-            setStep(0);
-            setActive(true);
-        };
-
-        window.addEventListener('restart_product_tour', handleRestart);
-
-        return () => {
-            clearTimeout(timer);
-            window.removeEventListener('restart_product_tour', handleRestart);
-        };
-    }, [storageKey, splashDone]);
+    const skip = useCallback(() => {
+        setActive(false);
+        setStep(0);
+        if (onSkip) onSkip();
+    }, [onSkip]);
 
     const next = useCallback(() => {
-        if (step < steps.length - 1) setStep(s => s + 1);
-        else complete();
+        if (step < steps.length - 1) {
+            setStep(s => s + 1);
+        } else {
+            complete();
+        }
     }, [step, steps.length, complete]);
 
     const back = useCallback(() => setStep(s => Math.max(0, s - 1)), []);
 
-    const restart = useCallback(() => {
-        window.dispatchEvent(new Event('restart_product_tour'));
-    }, []);
-
-    return { active, step, currentStep: steps[step], next, back, complete, restart };
+    return { active, step, currentStep: steps[step], next, back, complete, skip };
 }

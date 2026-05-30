@@ -1,19 +1,20 @@
-import { lazy, Suspense, useState, useEffect } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { WalkthroughContext } from './context/WalkthroughContext';
+import { useWalkthroughGate } from './hooks/useWalkthroughGate';
 import ErrorBoundary from './components/ErrorBoundary';
-import { PageLoader } from './components/ui/Loading';
+import AppLoadingScreen from './components/loading/AppLoadingScreen';
 
-// Eagerly loaded components (needed immediately)
+// Eagerly loaded components
 import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AuthLayout from './components/auth/AuthLayout';
 import WelcomeSplash from './components/onboarding/WelcomeSplash';
 import ProfileNudge from './components/onboarding/ProfileNudge';
 import ProductTour from './components/onboarding/ProductTour';
-import { useAuth } from './context/AuthContext';
 
 // Lazy loaded auth pages
 const Login = lazy(() => import('./components/auth/Login'));
@@ -42,50 +43,89 @@ const RecruiterJobs = lazy(() => import('./pages/recruiter/Jobs'));
 const RecruiterApplications = lazy(() => import('./pages/recruiter/Applications'));
 const RecruiterInterviews = lazy(() => import('./pages/recruiter/Interviews'));
 const RecruiterSettings = lazy(() => import('./pages/recruiter/Settings'));
-// Minimum loading screen duration (ms) — only shown once per session
-const MIN_LOAD_MS = 2500;
-const INTRO_KEY = 'placenext_intro_shown';
 
-function InitLoader({ children }) {
-  const alreadySeen = sessionStorage.getItem(INTRO_KEY) === 'true';
-  const [ready, setReady] = useState(alreadySeen);
-
-  useEffect(() => {
-    if (alreadySeen) return;
-    const timer = setTimeout(() => {
-      setReady(true);
-      sessionStorage.setItem(INTRO_KEY, 'true');
-    }, MIN_LOAD_MS);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (!ready) return <PageLoader message="Starting up…" />;
-  return children;
+// Minimal inline fallback — no framer-motion, no complex deps
+function PageFallback() {
+  return (
+    <div style={{
+      minHeight: '60vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      <div style={{
+        display: 'flex',
+        gap: 6,
+        alignItems: 'center',
+      }}>
+        {[0, 1, 2].map(i => (
+          <div key={i} style={{
+            width: 7,
+            height: 7,
+            borderRadius: '50%',
+            background: 'var(--accent, #6366f1)',
+            animation: `pf_bounce 0.8s ease-in-out ${i * 0.15}s infinite`,
+          }} />
+        ))}
+      </div>
+      <style>{`
+        @keyframes pf_bounce {
+          0%, 100% { transform: translateY(0); opacity: 0.4; }
+          50% { transform: translateY(-8px); opacity: 1; }
+        }
+      `}</style>
+    </div>
+  );
 }
 
-
+// ── AppShell ──────────────────────────────────────────────────────────────────
+// Handles: loading screen → walkthrough → normal app
+// ─────────────────────────────────────────────────────────────────────────────
 function AppShell({ children }) {
   const { user, profile } = useAuth();
+
+  // STEP 1: Loading screen — sessionStorage, clears when tab closes
+  const [loadingDone, setLoadingDone] = useState(false);
+
+  // STEP 2: Walkthrough gate — localStorage, permanent per user
+  const userId = user?.id || user?._id;
+  const { shouldShow: showWalkthrough, markDone: markWalkthroughDone, resetWalkthrough } =
+    useWalkthroughGate(userId);
+
+  // STEP 3: Track splash sub-step (splash → tour)
   const [splashDone, setSplashDone] = useState(false);
 
-  const splashKey = user ? `onboarding_splash_${user.id || user._id}` : null;
-  const showSplash = splashKey && !localStorage.getItem(splashKey) && !splashDone;
-
   return (
-    <>
-      {showSplash && (
-        <WelcomeSplash onComplete={() => setSplashDone(true)} />
+    <WalkthroughContext.Provider value={{ resetWalkthrough }}>
+      {/* ── LOADING SCREEN (renders before everything else) ── */}
+      <AppLoadingScreen onComplete={() => setLoadingDone(true)} />
+
+      {/* ── REST OF APP — only after loading is done ── */}
+      {loadingDone && (
+        <>
+          {/* Welcome splash — only on first-ever login, never again */}
+          {user && showWalkthrough && !splashDone && (
+            <WelcomeSplash onComplete={() => setSplashDone(true)} />
+          )}
+
+          {/* Product tour — after splash completes */}
+          {user && showWalkthrough && splashDone && (
+            <ProductTour
+              onComplete={markWalkthroughDone}
+              onSkip={markWalkthroughDone}
+            />
+          )}
+
+          {/* Profile nudge — students only */}
+          {user?.role === 'student' && profile && !showWalkthrough && (
+            <ProfileNudge completeness={profile.profileCompleteness ?? 0} />
+          )}
+
+          {/* App routes */}
+          {children}
+        </>
       )}
-
-      {!showSplash && user?.role === 'student' && profile && (
-        <ProfileNudge completeness={profile.profileCompleteness || 0} />
-      )}
-
-      {children}
-
-      {/* Only mount ProductTour after splash is fully dismissed */}
-      {!showSplash && <ProductTour splashDone={splashDone} />}
-    </>
+    </WalkthroughContext.Provider>
   );
 }
 
@@ -95,67 +135,64 @@ function App() {
       <AuthProvider>
         <ThemeProvider>
           <Router>
-            <InitLoader>
-              <Suspense fallback={<PageLoader message="Loading..." />}>
-              <AppShell>
+            <AppShell>
+              <Suspense fallback={<PageFallback />}>
                 <Routes>
-                {/* Public Routes with Animation */}
-                <Route element={<AuthLayout />}>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                </Route>
-
-                {/* Password Reset Routes (outside AuthLayout) */}
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-
-                {/* Protected Student Routes */}
-                <Route element={<ProtectedRoute allowedRoles={['student']} />}>
-                  <Route element={<Layout />}>
-                    <Route path="/dashboard" element={<StudentDashboard />} />
-                    <Route path="/drives" element={<Drives />} />
-                    <Route path="/applications" element={<Applications />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/resume-analyzer" element={<ResumeAnalyzer />} />
-                    <Route path="/settings" element={<Profile />} />
+                  {/* Public Routes */}
+                  <Route element={<AuthLayout />}>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
                   </Route>
-                </Route>
 
-                {/* Protected Admin Routes */}
-                <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-                  <Route element={<Layout />}>
-                    <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                    <Route path="/admin/companies" element={<Companies />} />
-                    <Route path="/admin/drives" element={<ManageDrives />} />
-                    <Route path="/admin/students" element={<Students />} />
-                    <Route path="/admin/recruiters" element={<AdminRecruiters />} />
-                    <Route path="/admin/schedule" element={<ManageDrives />} />
-                    <Route path="/admin/analytics" element={<AdminDashboard />} />
-                    <Route path="/admin/settings" element={<AdminSettings />} />
+                  {/* Password Reset Routes */}
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+
+                  {/* Protected Student Routes */}
+                  <Route element={<ProtectedRoute allowedRoles={['student']} />}>
+                    <Route element={<Layout />}>
+                      <Route path="/dashboard" element={<StudentDashboard />} />
+                      <Route path="/drives" element={<Drives />} />
+                      <Route path="/applications" element={<Applications />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="/resume-analyzer" element={<ResumeAnalyzer />} />
+                      <Route path="/settings" element={<Profile />} />
+                    </Route>
                   </Route>
-                </Route>
 
-                {/* Protected Recruiter Routes */}
-                <Route element={<ProtectedRoute allowedRoles={['recruiter']} />}>
-                  <Route element={<Layout />}>
-                    <Route path="/recruiter/dashboard" element={<RecruiterDashboard />} />
-                    <Route path="/recruiter/jobs" element={<RecruiterJobs />} />
-                    <Route path="/recruiter/applications" element={<RecruiterApplications />} />
-                    <Route path="/recruiter/interviews" element={<RecruiterInterviews />} />
-                    <Route path="/recruiter/settings" element={<RecruiterSettings />} />
+                  {/* Protected Admin Routes */}
+                  <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+                    <Route element={<Layout />}>
+                      <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                      <Route path="/admin/companies" element={<Companies />} />
+                      <Route path="/admin/drives" element={<ManageDrives />} />
+                      <Route path="/admin/students" element={<Students />} />
+                      <Route path="/admin/recruiters" element={<AdminRecruiters />} />
+                      <Route path="/admin/schedule" element={<ManageDrives />} />
+                      <Route path="/admin/analytics" element={<AdminDashboard />} />
+                      <Route path="/admin/settings" element={<AdminSettings />} />
+                    </Route>
                   </Route>
-                </Route>
 
-                {/* Default redirect */}
-                <Route path="/" element={<Navigate to="/login" replace />} />
-                <Route path="*" element={<Navigate to="/login" replace />} />
+                  {/* Protected Recruiter Routes */}
+                  <Route element={<ProtectedRoute allowedRoles={['recruiter']} />}>
+                    <Route element={<Layout />}>
+                      <Route path="/recruiter/dashboard" element={<RecruiterDashboard />} />
+                      <Route path="/recruiter/jobs" element={<RecruiterJobs />} />
+                      <Route path="/recruiter/applications" element={<RecruiterApplications />} />
+                      <Route path="/recruiter/interviews" element={<RecruiterInterviews />} />
+                      <Route path="/recruiter/settings" element={<RecruiterSettings />} />
+                    </Route>
+                  </Route>
+
+                  {/* Default redirect */}
+                  <Route path="/" element={<Navigate to="/login" replace />} />
+                  <Route path="*" element={<Navigate to="/login" replace />} />
                 </Routes>
-              </AppShell>
               </Suspense>
-            </InitLoader>
+            </AppShell>
           </Router>
 
-          {/* Toast Notifications */}
           <Toaster
             position="top-right"
             toastOptions={{
@@ -169,18 +206,8 @@ function App() {
                 fontSize: '14px',
                 padding: '12px 16px',
               },
-              success: {
-                iconTheme: {
-                  primary: '#10B981',
-                  secondary: '#fff',
-                },
-              },
-              error: {
-                iconTheme: {
-                  primary: '#EF4444',
-                  secondary: '#fff',
-                },
-              },
+              success: { iconTheme: { primary: '#10B981', secondary: '#fff' } },
+              error: { iconTheme: { primary: '#EF4444', secondary: '#fff' } },
             }}
           />
         </ThemeProvider>
@@ -190,4 +217,3 @@ function App() {
 }
 
 export default App;
-

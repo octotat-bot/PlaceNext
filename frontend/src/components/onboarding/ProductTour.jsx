@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
-import { useProductTour } from '../../hooks/useProductTour';
 import { Link } from 'react-router-dom';
 
 const studentTourSteps = [
@@ -35,10 +34,13 @@ const getSteps = (role) => {
     return [];
 };
 
-export default function ProductTour({ splashDone = true }) {
+export default function ProductTour({ onComplete, onSkip }) {
     const { user } = useAuth();
     const steps = getSteps(user?.role);
-    const { active, step, currentStep, next, back, complete } = useProductTour(steps, { splashDone });
+    const { active, step, currentStep, next, back, complete, skip } = useProductTour(steps, {
+        onDone: onComplete,
+        onSkip: onSkip,
+    });
     
     const [targetRect, setTargetRect] = useState(null);
 
@@ -46,7 +48,7 @@ export default function ProductTour({ splashDone = true }) {
     useEffect(() => {
         if (!active) return;
         const handleKeyDown = (e) => {
-            if (e.key === 'Escape') complete();
+            if (e.key === 'Escape') skip();
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
@@ -137,8 +139,8 @@ export default function ProductTour({ splashDone = true }) {
                 pointerEvents: 'none',
             }} />
             
-            {/* Click outside to close (invisible catcher) */}
-            <div onClick={complete} style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
+            {/* Click outside to skip (invisible catcher) */}
+            <div onClick={skip} style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
 
             {/* Tooltip */}
             <AnimatePresence mode="wait">
@@ -168,7 +170,7 @@ export default function ProductTour({ splashDone = true }) {
                         <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)', fontWeight: 500, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
                             Step {step + 1} of {steps.length}
                         </span>
-                        <button onClick={complete} style={{ background: 'none', border: 'none', color: 'var(--color-text-tertiary)', fontSize: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <button onClick={skip} style={{ background: 'none', border: 'none', color: 'var(--color-text-tertiary)', fontSize: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                             ✕ skip
                         </button>
                     </div>

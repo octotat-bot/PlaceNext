@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { User, Mail, Lock, Shield, Save, UserPlus, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Lock, Shield, Save, UserPlus, Eye, EyeOff, RotateCcw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { authAPI, adminAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 import PageHeader from '../../components/ui/PageHeader';
 import ThemePicker from '../../components/settings/ThemePicker';
+import { useWalkthroughReset } from '../../context/WalkthroughContext';
 
 const TABS = [
   { id: 'account',    label: 'My Account' },
@@ -27,6 +28,27 @@ const Section = ({ title, subtitle, children }) => (
     <div style={{ padding: '20px' }}>{children}</div>
   </div>
 );
+
+function WalkthroughResetButton() {
+  const { resetWalkthrough } = useWalkthroughReset();
+  return (
+    <div style={{ marginTop: 24, paddingTop: 20, borderTop: '0.5px solid var(--color-border-tertiary)' }}>
+      <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 4 }}>
+        App walkthrough
+      </div>
+      <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 12, lineHeight: 1.5 }}>
+        Restart the guided tour to revisit features you may have missed.
+      </div>
+      <button
+        className="btn"
+        onClick={() => { resetWalkthrough(); toast.success('Walkthrough reset — it will show on next page load.'); }}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13 }}
+      >
+        <RotateCcw size={13} /> Restart walkthrough
+      </button>
+    </div>
+  );
+}
 
 const FieldRow = ({ label, hint, children }) => (
   <div style={{ marginBottom: 14 }}>
@@ -215,6 +237,7 @@ const AdminSettings = () => {
       {activeTab === 'appearance' && (
         <Section title="Theme" subtitle="Personalise your interface">
           <ThemePicker />
+          <WalkthroughResetButton />
         </Section>
       )}
     </div>
