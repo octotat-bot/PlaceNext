@@ -3,7 +3,7 @@
 A comprehensive full-stack web application for managing campus placements with AI-powered features including resume analysis, smart eligibility matching, and an intelligent chatbot assistant.
 
 ![Tech Stack](https://img.shields.io/badge/Stack-MERN-green)
-![AI Powered](https://img.shields.io/badge/AI-OpenAI%20GPT--4-blue)
+![AI Powered](https://img.shields.io/badge/AI-Groq%20%2B%20Gemini-blue)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ## ✨ Features
@@ -38,14 +38,14 @@ A comprehensive full-stack web application for managing campus placements with A
 - **Node.js** with Express
 - **MongoDB** with Mongoose ODM
 - **JWT** for authentication
-- **OpenAI GPT-4** for AI features
+- **Groq** (`llama-3.1-8b-instant`) for the chatbot and **Gemini** for resume analysis
 - **Nodemailer** for emails
 - **PDF Parse** for resume extraction
 
 ## 📁 Project Structure
 
 ```
-internship/
+PlaceNext/
 ├── frontend/                 # React frontend
 │   ├── src/
 │   │   ├── components/       # Reusable components
@@ -79,12 +79,13 @@ internship/
 ### Prerequisites
 - Node.js 18+
 - MongoDB (local or Atlas)
-- OpenAI API key (for AI features)
+- Groq and Gemini API keys (for AI features)
 
 ### 1. Clone & Setup
 
 ```bash
-cd internship
+git clone https://github.com/octotat-bot/PlaceNext.git
+cd PlaceNext
 ```
 
 ### 2. Backend Setup
@@ -141,8 +142,9 @@ MONGO_URI=mongodb://localhost:27017/placement_portal
 JWT_SECRET=your-super-secret-jwt-key
 JWT_EXPIRE=30d
 
-# OpenAI (for AI features)
-OPENAI_API_KEY=sk-your-openai-api-key
+# AI features
+GROQ_API_KEY=your-groq-api-key
+GEMINI_API_KEY=your-gemini-api-key
 
 # Email (optional)
 SMTP_HOST=smtp.gmail.com
@@ -181,7 +183,7 @@ FRONTEND_URL=http://localhost:5173
 ### AI
 - `POST /api/ai/chat` - Chat with AI assistant
 
-## 🎨 Screenshots
+## 🎨 Main Screens
 
 ### Student Dashboard
 Modern dashboard with stats, eligible drives, and application tracking.
